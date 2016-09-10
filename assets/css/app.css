@@ -1,0 +1,39 @@
+html, body {
+    height: 100%;
+}
+
+#map {
+/*
+    width: 1024px;
+    height: 1024px;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+*/
+    z-index: 1;
+}
+
+/*** sidebar ***/
+#sidebar {
+    width: 250px;
+    height: 350px;
+    position: absolute;
+    top: 30px;
+    left: 20px;
+    z-index: 2;
+    background-color: #ffffff;
+    border: 3px green solid;  /* 枠線を引く */
+    border-radius: 20px;      /* 角丸の指定 */
+}
+
+#sidebar_bdy {
+    height: 330px;
+    padding: 5px 5px;
+}
+
+#result {
+    height:300px;
+    padding-top: 15px;
+    overflow-y: scroll;
+    font-size: 11px;
+}
