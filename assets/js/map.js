@@ -54,8 +54,8 @@ mapCtrl.prototype.getCurrentLocation = function(callback) {
         navigator.geolocation.getCurrentPosition ( funcGetCurPos );
     }
 	function funcGetCurPos( position ) {
-//		callback(position.coords.latitude, position.coords.longitude);
-        callback(34.975783,138.387355);
+		callback(position.coords.latitude, position.coords.longitude);
+////    callback(34.975783,138.387355);
     }
 }
 
@@ -243,13 +243,12 @@ mapCtrl.prototype.calcRoutePlace = function( destStr ) {
     var mapCtrlObj = this; // obj for callback
 	this.directionsService.route( request, function( result, status ) {
 		if ( status == google.maps.DirectionsStatus.OK ) {
+            for ( var i = 0; i < result.routes.length; i++ ) {
+			    mapCtrlObj.routeInfo = result.routes[ i ].overview_path;
 
-			mapCtrlObj.routeInfo = result.routes[ 0 ].overview_path;
-
-           if ( 1 ) {
                 var bounds = new google.maps.LatLngBounds();
-    			for (var i = 0; i < mapCtrlObj.routeInfo.length; i++ /* i+=Math.floor( resultPoints.length / (10) 探索値を間引く場合 )*/ ){
-                    bounds.extend(　mapCtrlObj.routeInfo[i]　);
+    			for (var j = 0; j < mapCtrlObj.routeInfo.length; j++ /* j+=Math.floor( resultPoints.length / (10) 探索値を間引く場合 )*/ ){
+                    bounds.extend(　mapCtrlObj.routeInfo[ j ]　);
                 }
                 mapCtrlObj.directionsDisplay.setDirections(　result　);
                 mapCtrlObj.map.fitBounds(　bounds　);
