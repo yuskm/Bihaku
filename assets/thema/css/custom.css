@@ -1,0 +1,118 @@
+#viewer .slide .caption {
+    /*background-image: -moz-linear-gradient(bottom, rgba(16,16,16,0.75), rgba(16,16,16,0.25) 80%, rgba(16,16,16,0));*/
+    /*background-image: -webkit-linear-gradient(bottom, rgba(16,16,16,0.75), rgba(16,16,16,0.25) 80%, rgba(16,16,16,0));*/
+    /*background-image: -ms-linear-gradient(bottom, rgba(16,16,16,0.75), rgba(16,16,16,0.25) 80%, rgba(16,16,16,0));*/
+    /*background-image: linear-gradient(bottom, rgba(16,16,16,0.75), rgba(16,16,16,0.25) 80%, rgba(16,16,16,0));*/
+    /*padding: 2em 2em 0.75em 2em ;*/
+    background-image: none;
+    position: absolute;
+    bottom: 0;
+    /*top: 0;*/
+    left: 0;
+    width: 100%;
+    color: rgba(255, 255, 255, 0.5);
+    z-index: 9999999999;
+}
+
+#viewer .slide .caption textarea{
+    font-size:14px;
+    width: 40em;
+    height: 25px;
+}
+#viewer .slide .caption textarea.active{
+    height: 75px;
+}
+@media screen and (max-width: 480px) {
+    #viewer .slide .caption textarea{
+        width: 80%;
+    }
+}
+#viewer .slide .caption i{
+    font-family:FontAwesome;
+    font-style:normal;
+    font-size:20px;
+    padding-right:0.5em;
+    margin:0 0 0 -10px;
+}
+#viewer .slide .caption .button{
+    display: inline-block;
+    width:100px;
+    height: 75px;
+    text-align: center;
+    text-decoration: none;
+    font-size:16px;
+    padding:1.5em 1em;
+    color: #FFF;
+    background: #9c7;
+    /*background: #00ff64;*/
+    box-sizing:border-box;
+    text-transform: uppercase;
+    font-weight: bold;
+    border-radius: 4px;
+    vertical-align: top;
+}
+
+
+#viewer .slide .social {
+    padding: 0 2em;
+    position: absolute;
+    /*bottom: 0;*/
+    top: 100px;
+    left: 0;
+    width: 100%;
+    color: rgba(255, 255, 255, 0.5);
+    z-index: 9999999999;
+}
+
+
+/* ====================================================
+  btn04
+ ==================================================== */
+.btn04 {
+    margin: 0 auto;
+    color: #fff;
+    text-decoration: none;
+    text-align: center;
+    position: relative;
+    z-index: 10;
+    display: block;
+    /*width: 150px;*/
+    /*height: 150px;*/
+    /*line-height: 150px;*/
+    width: 60px;
+    height: 60px;
+    line-height: 60px;
+}
+
+.btn04::before {
+    content: '';
+    /*background-color: #dda284;*/
+    background-color: #9c7;
+    /*background: #00ff64;*/
+    display: block;
+    position: absolute;
+    /*width: 150px;*/
+    /*height: 150px;*/
+    width: 60px;
+    height: 60px;
+    z-index: -1;
+    border-radius: 50%;
+    /*box-shadow:*/
+            /*0 0 0 0 #fff,*/
+            /*0 0 0 0 #dda284;*/
+    box-shadow:
+            0 0 0 0 #fff,
+            0 0 0 0 #9c7;
+    transition: all .2s ease;
+    -webkit-transition: all .2s ease;
+}
+.btn04:hover::before {
+    transform: scale(0.8);
+    -webkit-transform: scale(0.8);
+    /*box-shadow:*/
+            /*0 0 0 25px #fff,*/
+            /*0 0 0 27px #dda284;*/
+    box-shadow:
+            0 0 0 8px #fff,
+            0 0 0 10px #9c7;
+}
