@@ -34,6 +34,7 @@ function mapCtrl(mapElement, guideElement) {
     this.routeInfo = [];
     this.routeLocate = [];
     this.CalcRouteOK = 0;
+    this.CalcRoutePlaceOK = 0;
 
     this.directionsService = new google.maps.DirectionsService();
     this.directionsDisplay = new google.maps.DirectionsRenderer( { map: this.map,
@@ -242,14 +243,19 @@ mapCtrl.prototype.calcRoutePlace = function( destStr ) {
 	};
 
     var mapCtrlObj = this; // obj for callback
+    this.CalcRoutePlaceOK = 0;
 	this.directionsService.route( request, function( result, status ) {
 		if ( status == google.maps.DirectionsStatus.OK ) {
             var lineColor = [ '#FF0000', "#00FF00", "#0000FF" ];
             for ( var i = 0; i < result.routes.length; i++ ) {
-			    mapCtrlObj.routeLocate[ i ] = result.routes[ i ].overview_path;
+//			    mapCtrlObj.routeLocate[ i ].path = result.routes[ i ].overview_path;
+//              mapCtrlObj.routeLocate[ i ].dist = result.routes[ i ].legs[0].distance;
+                mapCtrlObj.routeLocate[ i ] = { path : result.routes[ i ].overview_path,
+                                                dist : result.routes[ i ].legs[0].distance };
+
                 var bounds = new google.maps.LatLngBounds();
                 var flightPath = new google.maps.Polyline({
-                    path: mapCtrlObj.routeLocate[ i ],
+                    path: mapCtrlObj.routeLocate[ i ].path,
                     geodesic: true,
                     strokeColor: lineColor[ i % 3 ],
                     strokeOpacity: 1.0,
@@ -257,13 +263,14 @@ mapCtrl.prototype.calcRoutePlace = function( destStr ) {
                   });
                 flightPath.setMap(mapCtrlObj.map);
 
-    			for (var j = 0; j < mapCtrlObj.routeLocate[ i ].length; j++ /* j+=Math.floor( resultPoints.length / (10) 探索値を間引く場合 )*/ ){
-                    bounds.extend(　mapCtrlObj.routeLocate[ i ][ j ]　);
+    			for (var j = 0; j < mapCtrlObj.routeLocate[ i ].path.length; j++ /* j+=Math.floor( resultPoints.length / (10) 探索値を間引く場合 )*/ ){
+                    bounds.extend(　mapCtrlObj.routeLocate[ i ].path[ j ]　);
                 }
 //                mapCtrlObj.directionsDisplay.setDirections(　result　);
                 mapCtrlObj.map.fitBounds(　bounds　);
     		}
         }
+        mapCtrlObj.CalcRoutePlaceOK = 1;
 	});
 }
 
