@@ -32,6 +32,7 @@ function mapCtrl(mapElement, guideElement) {
 
     this.markerInfo = [];
     this.routeInfo = [];
+    this.routeLocate = [];
     this.CalcRouteOK = 0;
 
     this.directionsService = new google.maps.DirectionsService();
@@ -243,14 +244,23 @@ mapCtrl.prototype.calcRoutePlace = function( destStr ) {
     var mapCtrlObj = this; // obj for callback
 	this.directionsService.route( request, function( result, status ) {
 		if ( status == google.maps.DirectionsStatus.OK ) {
+            var lineColor = [ '#FF0000', "#00FF00", "#0000FF" ];
             for ( var i = 0; i < result.routes.length; i++ ) {
-			    mapCtrlObj.routeInfo = result.routes[ i ].overview_path;
-
+			    mapCtrlObj.routeLocate[ i ] = result.routes[ i ].overview_path;
                 var bounds = new google.maps.LatLngBounds();
-    			for (var j = 0; j < mapCtrlObj.routeInfo.length; j++ /* j+=Math.floor( resultPoints.length / (10) 探索値を間引く場合 )*/ ){
-                    bounds.extend(　mapCtrlObj.routeInfo[ j ]　);
+                var flightPath = new google.maps.Polyline({
+                    path: mapCtrlObj.routeLocate[ i ],
+                    geodesic: true,
+                    strokeColor: lineColor[ i % 3 ],
+                    strokeOpacity: 1.0,
+                    strokeWeight: 2
+                  });
+                flightPath.setMap(mapCtrlObj.map);
+
+    			for (var j = 0; j < mapCtrlObj.routeLocate[ i ].length; j++ /* j+=Math.floor( resultPoints.length / (10) 探索値を間引く場合 )*/ ){
+                    bounds.extend(　mapCtrlObj.routeLocate[ i ][ j ]　);
                 }
-                mapCtrlObj.directionsDisplay.setDirections(　result　);
+//                mapCtrlObj.directionsDisplay.setDirections(　result　);
                 mapCtrlObj.map.fitBounds(　bounds　);
     		}
         }

@@ -14,7 +14,7 @@ var timer4Redraw = 0;
     // 現在地取得
     var cbGetCurrentLocate = function(lat,lng) {
         gMap.setCenter(lat,lng);
-/**/    gMap.calcRoutePlace("駿府城公園");
+       gMap.calcRoutePlace( "駿府城公園" );
     }
     var cbBoundsChange = function(latNE,lngNE,latSW,lngSW) {
         if ( timer4Redraw == 0 ) {
