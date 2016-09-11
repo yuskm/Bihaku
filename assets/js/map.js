@@ -267,7 +267,7 @@ mapCtrl.prototype.calcRoutePlace = function( destStr ) {
                     bounds.extend(　mapCtrlObj.routeLocate[ i ].path[ j ]　);
                 }
 //                mapCtrlObj.directionsDisplay.setDirections(　result　);
-                mapCtrlObj.map.fitBounds(　bounds　);
+//                mapCtrlObj.map.fitBounds(　bounds　);
     		}
         }
         mapCtrlObj.CalcRoutePlaceOK = 1;

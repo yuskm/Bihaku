@@ -15,13 +15,13 @@ var timer4Redraw = 0;
     var cbGetCurrentLocate = function(lat,lng) {
         gMap.setCenter(lat,lng);
 ///////////
-        gMap.calcRoutePlace( "駿府城公園" );
-        var timerId = setInterval( function() {
-            if ( gShizuMichi.staus.shokusaiOK && gMap.CalcRoutePlaceOK ) {
-                treeCount();
-                clearInterval(timerId);
-            }
-        }, 3000 );
+//        gMap.calcRoutePlace( "駿府城公園" );
+//        var timerId = setInterval( function() {
+//            if ( gShizuMichi.staus.shokusaiOK && gMap.CalcRoutePlaceOK ) {
+//                treeCount();
+//                clearInterval(timerId);
+//            }
+//        }, 3000 );
 //////////
     }
     var cbBoundsChange = function(latNE,lngNE,latSW,lngSW) {
@@ -82,24 +82,24 @@ function treeCount() {
                         // 開始端/終端座標より 2000m 外側にある場合は無条件でNG
                         // これを跳ねないと始端/終端を超えた直線上からの垂線距離で条件を満たしてしまうから
                         if ( startXY.x < endXY.x ) {
-                            if ( ( ( startXY.x - treeXY.x ) < -10 ) ||
-                                 ( ( endXY.x - treeXY.x ) > 10 ) ) {
+                            if ( ( ( startXY.x - treeXY.x ) < -20 ) ||
+                                 ( ( endXY.x - treeXY.x ) > 20 ) ) {
                                 continue;
                             }
                         } else {
-                            if ( ( ( endXY.x - treeXY.x ) < -10 ) ||
-                                 ( ( startXY.x - treeXY.x ) > 10 ) ) {
+                            if ( ( ( endXY.x - treeXY.x ) < -20 ) ||
+                                 ( ( startXY.x - treeXY.x ) > 20 ) ) {
                                 continue;
                             }
                         }
                         if ( startXY.y < endXY.y ) {
-                            if ( ( ( startXY.y - treeXY.y ) < -10 ) ||
-                                 ( ( endXY.y - treeXY.y ) > 10 ) ) {
+                            if ( ( ( startXY.y - treeXY.y ) < -20 ) ||
+                                 ( ( endXY.y - treeXY.y ) > 20 ) ) {
                                 continue;
                             }
                         } else {
-                            if ( ( ( endXY.y - treeXY.y ) < -10 ) ||
-                                 ( ( startXY.y - treeXY.y ) > 10 ) ) {
+                            if ( ( ( endXY.y - treeXY.y ) < -20 ) ||
+                                 ( ( startXY.y - treeXY.y ) > 20 ) ) {
                                 continue;
                             }
                         }
@@ -110,21 +110,21 @@ function treeCount() {
                         var dest = calcDistPointtoPoint( startXY.x, startXY.y, treeXY.x, treeXY.y)
                         ***/
                         // 垂線距離が 2000m 以内の場合は pick up
-                        if ( dest < 10  ) {
+                        if ( dest < 20  ) {
                             treeCount[k]++;
                         }
                     }
                 }
             }
 
-            logWrite(treeCount);
-            logWrite(gMap.routeLocate[0].dist);
-            logWrite(gMap.routeLocate[1].dist);
-            logWrite(gMap.routeLocate[2].dist);
+//            logWrite(treeCount);
+//            logWrite(gMap.routeLocate[0].dist);
+//            logWrite(gMap.routeLocate[1].dist);
+//            logWrite(gMap.routeLocate[2].dist);
 
-            logWrite( 10 * treeCount[0] * 100 / gMap.routeLocate[0].dist.value);
-            logWrite( 10 * treeCount[1] * 100 / gMap.routeLocate[1].dist.value);
-            logWrite( 10 * treeCount[2] * 100 / gMap.routeLocate[2].dist.value);
+            logWrite( Math.floor(10 * treeCount[0] * 100 / gMap.routeLocate[0].dist.value) + "%");
+            logWrite( Math.floor(10 * treeCount[1] * 100 / gMap.routeLocate[1].dist.value) + "%");
+    //        logWrite( Math.floor(10 * treeCount[2] * 100 / gMap.routeLocate[2].dist.value) + "%");
 }
 
 
@@ -239,7 +239,15 @@ function recongitionStart() {
     speech.recongitionStart();
 }
 function test() {
-    shizudata.test();
+//    shizudata.test();
+    var place = $("#place").val();
+    gMap.calcRoutePlace( place );
+    var timerId = setInterval( function() {
+        if ( gShizuMichi.staus.shokusaiOK && gMap.CalcRoutePlaceOK ) {
+                treeCount();
+                clearInterval(timerId);
+        }
+    }, 3000 );
 }
 
 function logWrite(text) {
