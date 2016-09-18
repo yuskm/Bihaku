@@ -12,8 +12,8 @@ var gMap        = new mapCtrl( document.getElementById('map'), document.getEleme
 
 ///////////////////////////////////////////////////////////
 // temporary
-var timer4Redraw = 0;   // 描画領域変更後、一定時間経過した時のみ植栽データを取得する
-var timer4Redraw2 = 0;   // 描画領域変更後、一定時間経過した時のみ植栽データを取得する
+var timer4Redraw  = 0;    // 描画領域変更後、一定時間経過した時のみ植栽データを取得する
+var doGetShokusai = 0;    // 一定時間描画領域が変更されなければ、最新の描画領域を元に植栽データ取得
 var log = document.getElementById( 'log' ); // log表示
 ///////////////////////////////////////////////////////////
 
@@ -46,18 +46,18 @@ var log = document.getElementById( 'log' ); // log表示
     // 描画領域変更されたら、領域内の植栽データ取得
     var cbBoundsChange = function() {
         dispProcessing();
-        if ( timer4Redraw2 == 0 ) {
+        if ( timer4Redraw == 0 ) {
             var timerId = setInterval( function() {
-                if ( timer4Redraw == 0 ) {
+                if ( doGetShokusai == 0 ) {
                     gShizuMichi.getShokusaiData( gMap.curRegion.latNE, gMap.curRegion.lngNE, gMap.curRegion.latSW, gMap.curRegion.lngSW, 100, 1, null, cbGetShokusai );
-                    timer4Redraw2 = 0;
+                    timer4Redraw = 0;
                     clearInterval(timerId);
                 } else {
-                    timer4Redraw = 0;
+                    doGetShokusai = 0;
                 }
             }, 500);
         }
-        timer4Redraw = 1;
+        doGetShokusai = 1;
     }
     gMap.getCurrentLocation(cbGetCurrentLocate); // 現在地取得
     gMap.setGMapEventListener("bounds_changed", cbBoundsChange); // 描画領域変更時のコールバック設定
