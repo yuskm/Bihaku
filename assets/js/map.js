@@ -1,17 +1,36 @@
+/**
+class : mapCtrl
+google maps API 制御クラス
+
+Author : ymiya
+*/
+///////////////////////////////////////////////////////////
+// fuction : mapCtrl
+// param : mapElement : Google Maps 制御対象map要素
+//         guideElement : 探索結果表示div要素
+// return :
+// note :  コンストラクタ
+///////////////////////////////////////////////////////////
 function mapCtrl(mapElement, guideElement) {
-/*** class propertyies start ***/
-    this.zoom = 16;
-    this.mapElement  = mapElement;
-    this.guideElement = guideElement;
-//    this.curlatlng = new google.maps.LatLng(35.681099,139.767084);     // initial locate = Tokyo station
-    this.curlatlng = new google.maps.LatLng(34.975783,138.387355); // 新静岡
+/*** class propertyies end ***/
+    this.zoom = 16;                     // zoom
+    this.mapElement  = mapElement;      // Google Maps 制御対象mapオブジェクト
+    this.guideElement = guideElement;   // 探索結果表示divオブジェクト
+//    this.curlatlng = new google.maps.LatLng(35.681099,139.767084);     // default ; Tokyo station
+    this.curlatlng = new google.maps.LatLng(34.975783,138.387355);       // default ; 新静岡
+    // 制御用マップオブジェクト生成
     this.map = new google.maps.Map( this.mapElement,  { zoom: this.zoom,
                                                         center: this.curlatlng,
-                                                        mapTypeId: google.maps.MapTypeId.ROADMAP
+                                                        mapTypeId: google.maps.MapTypeId.ROADMAP,
+                                                        minZoom: 15     // これ以上の領域の日陰探索は現状のアルゴリズムでは探索に時間がかかりすぎる
                                                       } );
+    // 現在の描画領域
+    this.curRegion = {latNE : 0, lngNE : 0, latSW : 0, lngSW : 0};
 
+    // ヒートマップ オブジェクト
     this.heatmap = new google.maps.visualization.HeatmapLayer({
         radius : 8, //ヒートマップの各ポイントの大きさ
+/**/    // 植栽データ表示用のカラー設定
         gradient:[
                 'rgba(0, 255, 0, 0)',
                 'rgba(0, 255, 0, 1)',
@@ -28,14 +47,13 @@ function mapCtrl(mapElement, guideElement) {
                 'rgba(0, 0, 0, 1)',
                 'rgba(0, 0, 0, 1)'
         ]
+/**/
     });
 
-    this.markerInfo = [];
-    this.routeInfo = [];
-    this.routeLocate = [];
-    this.CalcRouteOK = 0;
-    this.CalcRoutePlaceOK = 0;
+    this.markerInfo = [];           // Map上のMarker情報
+    this.routeInfo = [];            // 探索ルート情報(ステップ毎のロケーション)
 
+    // 経路探索用オブジェクト各種
     this.directionsService = new google.maps.DirectionsService();
     this.directionsDisplay = new google.maps.DirectionsRenderer( { map: this.map,
                                                                    suppressMarkers : true
@@ -44,37 +62,65 @@ function mapCtrl(mapElement, guideElement) {
     this.directionsDisplay.setPanel(this.guideElement);
 
     this.bounds = new google.maps.LatLngBounds();
-
-
-    this.infoWnd;
+    this.infoWnd;         // Markerを押した時に表示する小窓オブジェクトを格納
 /*** class propertyies end ***/
 }
 
+///////////////////////////////////////////////////////////
+// fuction : getCurrentLocation
+// param :  callback : 処理完了時のコールバック
+// return :
+// note :  ブラウザから現在地を取得する
+///////////////////////////////////////////////////////////
 mapCtrl.prototype.getCurrentLocation = function(callback) {
     var mapCtrlObj = this;   // obj for callback
     if ( navigator.geolocation ) {
         navigator.geolocation.getCurrentPosition ( funcGetCurPos );
     }
 	function funcGetCurPos( position ) {
-		callback(position.coords.latitude, position.coords.longitude);
-////    callback(34.975783,138.387355);
+        var lat = 34.971470;
+        var lng = 138.389172;
+//        var lat = position.coords.latitude;
+//        var lng = position.coords.longitude;
+		callback( lat, lng );
+        mapCtrlObj.curlatlng = new google.maps.LatLng( lat, lng );
     }
 }
 
+///////////////////////////////////////////////////////////
+// fuction : setGMapEventListener
+// param :  event : 対象イベント
+//          callback : 対象イベントが発生した際のコールバック
+// return :
+// note :  google map にイベントが発生した際のコールバックを設定
+///////////////////////////////////////////////////////////
 mapCtrl.prototype.setGMapEventListener = function(event, callback) {
     var mapCtrlObj = this;   // obj for callback
 
     google.maps.event.addListener(this.map, "bounds_changed", function() {
         var pos = mapCtrlObj.map.getBounds();
-        var latNE = pos.getNorthEast().lat();
-        var lngNE = pos.getNorthEast().lng();
-        var latSW = pos.getSouthWest().lat();
-        var lngSW = pos.getSouthWest().lng();
-        callback( latNE, lngNE, latSW, lngSW );
+        var latNE = mapCtrlObj.curRegion.latNE = pos.getNorthEast().lat();
+        var lngNE = mapCtrlObj.curRegion.lngNE = pos.getNorthEast().lng();
+        var latSW = mapCtrlObj.curRegion.latSW = pos.getSouthWest().lat();
+        var lngSW = mapCtrlObj.curRegion.lngSW = pos.getSouthWest().lng();
+        callback();
     });
 }
 
-
+///////////////////////////////////////////////////////////
+// fuction : addMarker
+// param :  id : ID
+//          lat : Marker緯度
+//          lng : Marker経度
+//          name : 場所名
+//          address : 住所
+//          url : URL
+//          iconStr : アイコンに表示する文字列
+//          iconRGB : アイコンのRGB
+//          orderNum : アイコンの重なり順序
+// return :
+// note :  google map にMarkerを追加する
+///////////////////////////////////////////////////////////
 mapCtrl.prototype.addMarker = function(id, lat, lng, name, address, url, iconStr, iconRGB, orderNum) {
 
     if(this.map === undefined){
@@ -112,7 +158,6 @@ mapCtrl.prototype.addMarker = function(id, lat, lng, name, address, url, iconStr
                       iconRGB :  iconRGB };
     this.markerInfo.push( makerInfo );
 
-
     // 情報ウィンドウ追加
     var contentString = "<dl class='info_window'><dt>" + " " + name + "<br />" + address + "<br /></dd></dl>";
 
@@ -137,6 +182,12 @@ mapCtrl.prototype.addMarker = function(id, lat, lng, name, address, url, iconStr
     });
 }
 
+///////////////////////////////////////////////////////////
+// fuction : clearMarkers
+// param :
+// return :
+// note : 全Marker削除
+///////////////////////////////////////////////////////////
 mapCtrl.prototype.clearMarkers = function() {
     for (var i=0; i < this.markerInfo.length; i++){
         this.markerInfo[i].marker.setMap(null);
@@ -146,6 +197,12 @@ mapCtrl.prototype.clearMarkers = function() {
     this.bounds = new google.maps.LatLngBounds();
 }
 
+///////////////////////////////////////////////////////////
+// fuction : clearMarker
+// param : id : 削除するMarkerのID
+// return :
+// note : 一つのMarker削除。ID指定
+///////////////////////////////////////////////////////////
 mapCtrl.prototype.clearMarker = function(id) {
     for ( var i = 0; i < this.markerInfo.length; i++ ) {
         if ( this.markerInfo[i].id == id ) {
@@ -156,6 +213,12 @@ mapCtrl.prototype.clearMarker = function(id) {
     }
 }
 
+///////////////////////////////////////////////////////////
+// fuction : pickMarkers
+// param : id : 残すMarkerのIDが格納された配列
+// return :
+// note : 引数で指定したMarker以外を削除
+///////////////////////////////////////////////////////////
 mapCtrl.prototype.pickMarkers = function(id) {
     var splicePos = [];
     for ( var i = 0; i < this.markerInfo.length; i++ ) {
@@ -176,14 +239,16 @@ mapCtrl.prototype.pickMarkers = function(id) {
     this.markerInfo.splice( splicePos.length, this.markerInfo.length - splicePos.length );
 }
 
-
-mapCtrl.prototype.calcRoute = function( destLatlng, wayPointLatlng, guide ) {
-
-
-//    var wayPoints = [ {
-//             location: new google.maps.LatLng( parseFloat(wayPointLatlng[0].lat), parseFloat(wayPointLatlng[0].lng) )
-//            location: new google.maps.LatLng(36.554016559725554, 136.67215079069138)
-//    } ];
+///////////////////////////////////////////////////////////
+// fuction : calcRoute
+// param : destLatlng : 行き先の緯度経度
+//         wayPointLatlng : 寄り道先の緯度経度を格納した配列
+//         guide : 探索結果を表示するか(true/false)
+//         callback : 探索完了時のコールバック
+// return :
+// note : 現在地から引数で指定した場所までの経路探索を行う
+///////////////////////////////////////////////////////////
+mapCtrl.prototype.calcRoute = function( destLatlng, wayPointLatlng, guide, callback ) {
 
     var request = {
 		origin : this.curlatlng ,
@@ -192,7 +257,6 @@ mapCtrl.prototype.calcRoute = function( destLatlng, wayPointLatlng, guide ) {
         unitSystem : google.maps.DirectionsUnitSystem.METRIC,
         optimizeWaypoints : false,
         provideRouteAlternatives : true,
-//        waypoints : wayPoints,
         avoidHighways : true,
 	};
 
@@ -208,28 +272,41 @@ mapCtrl.prototype.calcRoute = function( destLatlng, wayPointLatlng, guide ) {
 //  描画領域を初期化する
 //  delete this.bounds;
 //  this.bounds = new google.maps.LatLngBounds();
-    this.routeInfo = [];
-    this.CalcRouteOK = 0;
+
+// 探索開始
     var mapCtrlObj = this; // obj for callback
+    this.routeInfo = [];
+
 	this.directionsService.route( request, function( result, status ) {
 		if ( status == google.maps.DirectionsStatus.OK ) {
-
-			mapCtrlObj.routeInfo = result.routes[ 0 ].overview_path;
-
-           if ( guide ) {
+            for ( var i = 0; i < result.routes.length; i++ ) {
+			     mapCtrlObj.routeInfo[i] = result.routes[ i ].overview_path;
                 var bounds = new google.maps.LatLngBounds();
-    			for (var i = 0; i < mapCtrlObj.routeInfo.length; i++ /* i+=Math.floor( resultPoints.length / (10) 探索値を間引く場合 )*/ ){
-                    bounds.extend(　mapCtrlObj.routeInfo[i]　);
+                // 表示領域 設定
+                for (var j = 0; j < mapCtrlObj.routeInfo.length;　j++ /* i+=Math.floor( resultPoints.length / (10) 探索値を間引く場合 )*/ ){
+                    bounds.extend(　mapCtrlObj.routeInfo[i][j]　);
                 }
-                mapCtrlObj.directionsDisplay.setDirections(　result　);
-                mapCtrlObj.map.fitBounds(　bounds　);
     		}
+
+            if ( guide ) {
+                // 表示領域設定
+                mapCtrlObj.map.fitBounds(　bounds　);
+                // 探索結果表示
+                mapCtrlObj.directionsDisplay.setDirections(　result　);
+            }
+            callback();
         }
-        mapCtrlObj.CalcRouteOK = 1;
 	});
 }
 
-mapCtrl.prototype.calcRoutePlace = function( destStr ) {
+///////////////////////////////////////////////////////////
+// fuction : calcRoutebyName
+// param : destStr : 行き先の名称
+//         callback : 探索完了時のコールバック
+// return :
+// note : 現在地から引数で指定した場所までの経路探索を行う
+///////////////////////////////////////////////////////////
+mapCtrl.prototype.calcRoutebyName = function( destStr, callback ) {
 
     var request = {
 		origin : this.curlatlng ,
@@ -238,55 +315,81 @@ mapCtrl.prototype.calcRoutePlace = function( destStr ) {
         unitSystem : google.maps.DirectionsUnitSystem.METRIC,
         optimizeWaypoints : false,
         provideRouteAlternatives : true,
-//        waypoints : wayPoints,
         avoidHighways : true,
 	};
 
+    // 探索開始
     var mapCtrlObj = this; // obj for callback
-    this.CalcRoutePlaceOK = 0;
+    this.routeInfo =[];
+
 	this.directionsService.route( request, function( result, status ) {
 		if ( status == google.maps.DirectionsStatus.OK ) {
-            var lineColor = [ '#FF0000', "#00FF00", "#0000FF" ];
+            var routeInfo = [];  // ルート表示用データ格納変数
+
             for ( var i = 0; i < result.routes.length; i++ ) {
-//			    mapCtrlObj.routeLocate[ i ].path = result.routes[ i ].overview_path;
-//              mapCtrlObj.routeLocate[ i ].dist = result.routes[ i ].legs[0].distance;
-                mapCtrlObj.routeLocate[ i ] = { path : result.routes[ i ].overview_path,
-                                                dist : result.routes[ i ].legs[0].distance };
-
+                mapCtrlObj.routeInfo[ i ] = { path : result.routes[ i ].overview_path,
+                                              dist : result.routes[ i ].legs[0].distance };
+                // 表示領域 設定
                 var bounds = new google.maps.LatLngBounds();
-                var flightPath = new google.maps.Polyline({
-                    path: mapCtrlObj.routeLocate[ i ].path,
-                    geodesic: true,
-                    strokeColor: lineColor[ i % 3 ],
-                    strokeOpacity: 1.0,
-                    strokeWeight: 2
-                  });
-                flightPath.setMap(mapCtrlObj.map);
-
-    			for (var j = 0; j < mapCtrlObj.routeLocate[ i ].path.length; j++ /* j+=Math.floor( resultPoints.length / (10) 探索値を間引く場合 )*/ ){
-                    bounds.extend(　mapCtrlObj.routeLocate[ i ].path[ j ]　);
+    			for (var j = 0; j < mapCtrlObj.routeInfo[ i ].path.length; j++ /* j+=Math.floor( resultPoints.length / (10) 探索値を間引く場合 )*/ ){
+                    bounds.extend(　mapCtrlObj.routeInfo[ i ].path[ j ]　);
                 }
-//                mapCtrlObj.directionsDisplay.setDirections(　result　);
-//                mapCtrlObj.map.fitBounds(　bounds　);
+                routeInfo[i] = 　mapCtrlObj.routeInfo[ i ].path;
     		}
+
+            mapCtrlObj.displayCalcRoute(routeInfo);
+            callback();
         }
-        mapCtrlObj.CalcRoutePlaceOK = 1;
 	});
 }
 
+///////////////////////////////////////////////////////////
+// fuction : displayCalcRoute
+// param : routeInfo : 検索ルート結果
+// return :
+// note : 検索ルート結果をpolylineで表示する
+///////////////////////////////////////////////////////////
+mapCtrl.prototype.displayCalcRoute = function( routeInfo ) {
+    var lineColor = [ '#00ffff',"#bf00ff", "#00ffbf", "#ffff00", "#0000FF", "#00ff00", "#0000FF", "#00ffbf" ];  // polyLineの色
+    for ( var i = 0; i < routeInfo.length; i++ ) {
+        var flightPath = new google.maps.Polyline({
+            path: routeInfo[ i ],
+            geodesic: true,
+            strokeColor: lineColor[ i % lineColor.length ],
+            strokeOpacity: 1.0,
+            strokeWeight: 2
+        });
+        flightPath.setMap( this.map );
+    }
+}
+
+///////////////////////////////////////////////////////////
+// fuction : setCenter
+// param : lat, lng : 緯度, 経度
+// return :
+// note : 地図の中心地を指定
+///////////////////////////////////////////////////////////
 mapCtrl.prototype.setCenter = function(lat, lng) {
     var latlng = new google.maps.LatLng( lat , lng ) ;
     this.map.setCenter( latlng );
 }
 
-
-
+///////////////////////////////////////////////////////////
+// fuction : findLandmark
+// param : lat, lng : 緯度, 経度
+//         type : 以下のURLを参照
+//                https://developers.google.com/places/supported_types?hl=ja
+//         rad : 探索範囲(メートル)
+//         idOffset : MarkerのId(複数ある場合は、ここで指定した値がオフセットとなる)
+// return :
+// note : 地図の中心地を指定
+///////////////////////////////////////////////////////////
 mapCtrl.prototype.findLandmark = function(lat, lng, type, rad, idOfst ) {
     var mapCtrlObj = this; // obj for callback
     var request = {
         location: new google.maps.LatLng( lat, lng ),
-        radius: '800',
-        types: ['parking']
+        radius: rad,
+        types: [ type ]
     };
     var service = new google.maps.places.PlacesService( this. map );
 
@@ -307,14 +410,18 @@ mapCtrl.prototype.findLandmark = function(lat, lng, type, rad, idOfst ) {
     });
 }
 
-
-/////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////
+// fuction : showHeatmap
+// param : pointData : ヒートポイント
+// return :
+// note : ヒートマップを表示する
+///////////////////////////////////////////////////////////
 mapCtrl.prototype.showHeatmap = function(pointData) {
     //ヒートマップ用のデータの作成
 //    var bounds = new google.maps.LatLngBounds();
     var  latlng, point = [];
     for ( var i = 0; i < pointData.length; i++ ) {
-        latlng = new google.maps.LatLng( pointData[i].coordinate[1], pointData[i].coordinate[0]);
+        latlng = new google.maps.LatLng( pointData[i].coordinate[1], pointData[i].coordinate[0] );
         point.push({
             location : latlng,
             opacity : 0.1,
@@ -328,10 +435,12 @@ mapCtrl.prototype.showHeatmap = function(pointData) {
     this.heatmap.setMap(this.map);
 }
 
-
-
-
-/////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////
+// fuction : zoomUp, zoomDown
+// param :
+// return :
+// note : ズーム値変更
+///////////////////////////////////////////////////////////
 mapCtrl.prototype.zoomUp = function() {
     if ( this.zoom < 21 ) {
         this.zoom++;
