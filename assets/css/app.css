@@ -37,3 +37,29 @@ html, body {
     overflow-y: scroll;
     font-size: 11px;
 }
+
+#processing {
+	width: 128px; /* gif画像の幅 */
+	height: 64px; /* gif画像の高さ */
+	background: #BABABA; /* gif画像の背景色 */
+	opacity: 1.0; /* 透過させる */
+	position: fixed; /* gif画像をスクロールさせない */
+	left: 50%; /* gif画像を画面横中央へ */
+	top: 50%; /* gif画像を画面縦中央へ */
+    font-size:larger;
+    color:black;
+    display:none;
+}
+
+#calculating {
+	width: 128px; /* gif画像の幅 */
+	height: 64px; /* gif画像の高さ */
+	background: #BABABA; /* gif画像の背景色 */
+	opacity: 1.0; /* 透過させる */
+	position: fixed; /* gif画像をスクロールさせない */
+	left: 50%; /* gif画像を画面横中央へ */
+	top: 50%; /* gif画像を画面縦中央へ */
+    font-size:larger;
+    color:black;
+    display:none;
+}

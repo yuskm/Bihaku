@@ -13,6 +13,7 @@ var gMap        = new mapCtrl( document.getElementById('map'), document.getEleme
 ///////////////////////////////////////////////////////////
 // temporary
 var timer4Redraw = 0;   // 描画領域変更後、一定時間経過した時のみ植栽データを取得する
+var timer4Redraw2 = 0;   // 描画領域変更後、一定時間経過した時のみ植栽データを取得する
 var log = document.getElementById( 'log' ); // log表示
 ///////////////////////////////////////////////////////////
 
@@ -36,19 +37,25 @@ var log = document.getElementById( 'log' ); // log表示
     var cbGetShokusai = function() {
         if ( gShizuMichi.staus.shokusaiOK == 1) {
             gMap.showHeatmap( gShizuMichi.shokusaiLocate );
+
+            removeProcessing();
         }
     }
 
     // 描画領域変更時のコールバック
     // 描画領域変更されたら、領域内の植栽データ取得
     var cbBoundsChange = function() {
-        if ( timer4Redraw == 0 ) {      // temporary 過剰アクセス防止用
+        dispProcessing();
+        if ( timer4Redraw2 == 0 ) {
             var timerId = setInterval( function() {
-            gShizuMichi.getShokusaiData( gMap.curRegion.latNE, gMap.curRegion.lngNE, gMap.curRegion.latSW, gMap.curRegion.lngSW, 100, 1, null, cbGetShokusai );
-
-                timer4Redraw = 0;
-                clearInterval( timerId );
-            }, 1000);
+                if ( timer4Redraw == 0 ) {
+                    gShizuMichi.getShokusaiData( gMap.curRegion.latNE, gMap.curRegion.lngNE, gMap.curRegion.latSW, gMap.curRegion.lngSW, 100, 1, null, cbGetShokusai );
+                    timer4Redraw2 = 0;
+                    clearInterval(timerId);
+                } else {
+                    timer4Redraw = 0;
+                }
+            }, 500);
         }
         timer4Redraw = 1;
     }
@@ -132,13 +139,49 @@ function treeCount() {
 ////        }
     }
 
+    var lineColor = [ '#00ffff',"#bf00ff", "#00ffbf", "#ffff00", "#0000FF", "#00ff00", "#0000FF", "#00ffbf" ];
+    $("#hikage").empty();
     for ( var i = 0; i < gMap.routeInfo.length; i++) {
-        $("#hikage").html("<BR><BR><BR>ルート1   日陰率 : " + Math.floor(treeShadowMeter * treeCount[i] * 100 / gMap.routeInfo[i].dist.value) + "%" );
-        logWrite( "ルート1 日陰率: " + Math.floor(treeShadowMeter * treeCount[i] * 100 / gMap.routeInfo[i].dist.value) + "%");
+
+
+
+//    $("#hikage").html("<BR><BR><BR>ルート1   日陰率 : " + Math.floor(treeShadowMeter * treeCount[i] * 100 / gMap.routeInfo[i].dist.value) + "%" );
+    $("#hikage").append(
+        $("<tr></tr>")
+            .append($("<th bgcolor=" + lineColor[ i % lineColor.length ] + "></th>").text("ルート"+(i+1) ))
+            .append($("<td></td>").text("の日陰率は　"))
+            .append($("<td style='font-weight: bold'></td>").text( ( Math.floor(treeShadowMeter * treeCount[i] * 100 / gMap.routeInfo[i].dist.value) ) + "%"))
+        );
+
+    logWrite( "ルート1 日陰率: " + Math.floor(treeShadowMeter * treeCount[i] * 100 / gMap.routeInfo[i].dist.value) + "%");
     }
 }
 
+///////////////////////////////////////////////////////////
+// fuction : dispProcessing/Calculating
+// param :
+// return :
+// note :  処理中ポップアップ表示
+///////////////////////////////////////////////////////////
+function dispProcessing() {
+    $("#processing").show();
+}
+function dispCalculating() {
+    $("#calculating").show();
+}
 
+///////////////////////////////////////////////////////////
+// fuction : dispProcessing/Calculating
+// param :
+// return :
+// note :  処理中ポップアップ表示
+///////////////////////////////////////////////////////////
+function removeProcessing() {
+	$("#processing").hide();
+}
+function removeCalculating() {
+    $("#calculating").hide();
+}
 ///////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////
@@ -146,13 +189,23 @@ function treeCount() {
 ///////////////////////////////////////////////////////////
 // functions for debugging
 
-function test() {
+function calcHikageRitsu() {
+    dispCalculating();
+
+    var cbGetShokusai = function() {
+        if ( gShizuMichi.staus.shokusaiOK ) {
+            treeCount();        // 日陰率を算出する
+            gMap.showHeatmap( gShizuMichi.shokusaiLocate );
+            removeCalculating();
+        }
+    };
 
     // ルート探索完了時のコールバック
     var cbGetCalcRoute = function() {
+    //    gShizuMichi.getShokusaiData( gMap.curRegion.latNE, gMap.curRegion.lngNE, gMap.curRegion.latSW, gMap.curRegion.lngSW, 100, 1, null, cbGetShokusai );
         var timerId = setInterval( function() {
-            if ( gShizuMichi.staus.shokusaiOK ) {
-                treeCount();        // 日陰率を算出する
+            if ( gShizuMichi.staus.shokusaiOK == 1 ) {
+                cbGetShokusai();
                 clearInterval(timerId);
             }
         }, 1000 );

@@ -22,7 +22,7 @@ function mapCtrl(mapElement, guideElement) {
     this.map = new google.maps.Map( this.mapElement,  { zoom: this.zoom,
                                                         center: this.curlatlng,
                                                         mapTypeId: google.maps.MapTypeId.ROADMAP,
-                                                        minZoom: 15     // これ以上の領域の日陰探索は現状のアルゴリズムでは探索に時間がかかりすぎる
+                                                        minZoom:14     // これ以上の領域の日陰探索は現状のアルゴリズムでは探索に時間がかかりすぎる
                                                       } );
     // 現在の描画領域
     this.curRegion = {latNE : 0, lngNE : 0, latSW : 0, lngSW : 0};
@@ -61,6 +61,8 @@ function mapCtrl(mapElement, guideElement) {
     this.directionsDisplay.setMap(this.map);
     this.directionsDisplay.setPanel(this.guideElement);
 
+    this.polyLine = [];
+
     this.bounds = new google.maps.LatLngBounds();
     this.infoWnd;         // Markerを押した時に表示する小窓オブジェクトを格納
 /*** class propertyies end ***/
@@ -78,10 +80,10 @@ mapCtrl.prototype.getCurrentLocation = function(callback) {
         navigator.geolocation.getCurrentPosition ( funcGetCurPos );
     }
 	function funcGetCurPos( position ) {
-        var lat = 34.971470;
-        var lng = 138.389172;
-//        var lat = position.coords.latitude;
-//        var lng = position.coords.longitude;
+//        var lat = 34.971470;
+//        var lng = 138.389172;
+        var lat = position.coords.latitude;
+        var lng = position.coords.longitude;
 		callback( lat, lng );
         mapCtrlObj.curlatlng = new google.maps.LatLng( lat, lng );
     }
@@ -98,12 +100,12 @@ mapCtrl.prototype.setGMapEventListener = function(event, callback) {
     var mapCtrlObj = this;   // obj for callback
 
     google.maps.event.addListener(this.map, "bounds_changed", function() {
-        var pos = mapCtrlObj.map.getBounds();
-        var latNE = mapCtrlObj.curRegion.latNE = pos.getNorthEast().lat();
-        var lngNE = mapCtrlObj.curRegion.lngNE = pos.getNorthEast().lng();
-        var latSW = mapCtrlObj.curRegion.latSW = pos.getSouthWest().lat();
-        var lngSW = mapCtrlObj.curRegion.lngSW = pos.getSouthWest().lng();
-        callback();
+            var pos = mapCtrlObj.map.getBounds();
+            var latNE = mapCtrlObj.curRegion.latNE = pos.getNorthEast().lat();
+            var lngNE = mapCtrlObj.curRegion.lngNE = pos.getNorthEast().lng();
+            var latSW = mapCtrlObj.curRegion.latSW = pos.getSouthWest().lat();
+            var lngSW = mapCtrlObj.curRegion.lngSW = pos.getSouthWest().lng();
+            callback();
     });
 }
 
@@ -322,6 +324,12 @@ mapCtrl.prototype.calcRoutebyName = function( destStr, callback ) {
     var mapCtrlObj = this; // obj for callback
     this.routeInfo =[];
 
+    if ( this.polyLine ) {
+        for ( var i = 0; i < this.polyLine.length; i++) {
+            this.polyLine[i].setMap(null);
+            this.polyLine[i] =[];
+        }
+    }
 	this.directionsService.route( request, function( result, status ) {
 		if ( status == google.maps.DirectionsStatus.OK ) {
             var routeInfo = [];  // ルート表示用データ格納変数
@@ -336,7 +344,7 @@ mapCtrl.prototype.calcRoutebyName = function( destStr, callback ) {
                 }
                 routeInfo[i] = 　mapCtrlObj.routeInfo[ i ].path;
     		}
-
+            mapCtrlObj.map.fitBounds(　bounds　);
             mapCtrlObj.displayCalcRoute(routeInfo);
             callback();
         }
@@ -352,14 +360,14 @@ mapCtrl.prototype.calcRoutebyName = function( destStr, callback ) {
 mapCtrl.prototype.displayCalcRoute = function( routeInfo ) {
     var lineColor = [ '#00ffff',"#bf00ff", "#00ffbf", "#ffff00", "#0000FF", "#00ff00", "#0000FF", "#00ffbf" ];  // polyLineの色
     for ( var i = 0; i < routeInfo.length; i++ ) {
-        var flightPath = new google.maps.Polyline({
+        this.polyLine[i] = new google.maps.Polyline({
             path: routeInfo[ i ],
             geodesic: true,
             strokeColor: lineColor[ i % lineColor.length ],
             strokeOpacity: 1.0,
             strokeWeight: 2
         });
-        flightPath.setMap( this.map );
+        this.polyLine[i].setMap( this.map );
     }
 }
 

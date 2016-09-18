@@ -6,7 +6,7 @@
 -->
 <html>
 <head>
-    <title>Lens by HTML5 UP</title>
+    <title>Bihakul NAVI</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="assets/thema/css/main.css" />
@@ -117,7 +117,8 @@
 
     <!-- Footer -->
     <footer id="footer">
-        <div class="block" id="hikage">
+        <div bgcolor="#FFFFFF"　>
+            <table class="block" id="hikage"> </table>
             <!-- 日影率 <span>90</span>% -->
         </div>
     </footer>
@@ -130,13 +131,14 @@
     <div class="slide active">
         <div class="social">
             <input type="text" id="place" size="30" maxlength="20">
-            <input type="button" value="GO!" onclick="test()">
+            <input type="button" value="GO!" onclick="calcHikageRitsu()">
             <br />
             <div id="social-icon" style="display:inline-block;">
                 <a href="#" class="btn04"><i class="fa fa-envira" aria-hidden="true"></i></a>
             </div>
+            <div id="processing">Now Processing...</div>
+            <div id="calculating">Now Calculating...</div>
         </div>
-
         <div id="caption" class="caption">
             <form action="" method="post">
                 <textarea id="recommend" rows="1" placeholder="私のおススメ日影は？"></textarea>
@@ -144,15 +146,16 @@
             </form>
         </div>
 
+
         <div>
             <div id="map" class="image"></div>
             <div id="guide"></div>
-
             <div id="log"></div>
-            <!-- <form id="speech">
-                <input type="button" value="start" id="recognition" name="recognition" onclick="test()" />
-            </form>  -->
+
+
         </div>
+
+
     </div>
 </div>
 
