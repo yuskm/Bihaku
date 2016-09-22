@@ -2,7 +2,10 @@
     $data = array();
 
     // PostgreSQL Connect
-    $dbconn = pg_connect("host=localhost user=postgres password=postgres dbname=postgres");
+    $url = parse_url(getenv('DATABASE_URL'));
+
+
+    $dbconn = pg_connect("host=" . $url['host'] . "user=" . $url['user'] . "password=" . $url['pass'] . "dbname=" . substr($url['path'], 1));
     // SQL
     $sql = "SELECT * FROM bihakunavi;";
     $result = pg_query($dbconn, $sql);
