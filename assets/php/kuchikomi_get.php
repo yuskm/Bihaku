@@ -5,8 +5,8 @@
     $url = parse_url(getenv('DATABASE_URL'));
     $str = "host=" . $url['host'] . "user=" . $url['user'] . "password=" . $url['pass'] . "dbname=" . substr($url['path'], 1);
 
-//    $dbconn = pg_connect("host=" . $url['host'] . "user=" . $url['user'] . "password=" . $url['pass'] . "dbname=" . substr($url['path'], 1));
-
+    $dbconn = pg_connect("host=" . $url['host'] . "user=" . $url['user'] . "password=" . $url['pass'] . "dbname=" . substr($url['path'], 1));
+/*
     // SQL
     $sql = "SELECT * FROM bihakunavi;";
     $result = pg_query($dbconn, $sql);
@@ -19,10 +19,11 @@
     }
 
     // PostgreSQL Disconnect
+*/
     pg_close( $dbconn );
 
-    header( 'Content-Type: application/json; charset=utf-8' );
-    echo json_encode( $data );
-*/
-    echo ($url . $dbconn);
+//    header( 'Content-Type: application/json; charset=utf-8' );
+//    echo json_encode( $data );
+
+    echo ($url . $dbconn . $data);
 ?>
