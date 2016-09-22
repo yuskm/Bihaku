@@ -8,6 +8,7 @@ Author : ymiya
 // global変数
 var gShizuMichi = new shizuMichiCtrl();     // しずみちAPI制御
 var gMap        = new mapCtrl( document.getElementById('map'), document.getElementById('guide') );  // google MAP API制御
+var gJson       = new jsonCtrl();
 ///////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////
@@ -59,8 +60,26 @@ var log = document.getElementById( 'log' ); // log表示
         }
         doGetShokusai = 1;
     }
+
     gMap.getCurrentLocation(cbGetCurrentLocate); // 現在地取得
     gMap.setGMapEventListener("bounds_changed", cbBoundsChange); // 描画領域変更時のコールバック設定
+
+        $.ajax({
+        type: "GET",
+        url: "assets/php/kuchikomi_get.php",
+        success: function(res) {
+            for ( var i = 0; i < res.length; i++ ) {
+                gMap.addMarker( res[i].id, res[i].lat, res[i].lng, "", "", "", "", "6DF79C", null);
+            }
+        }
+    });
+
+
+/*
+    var cbReadIchijihinanChiJson = function(res) {
+    }
+    gJson.readJsonFile("assets/json/ichijihinanchi.json",cbReadIchijihinanChiJson);
+*/
 }());
 
 
@@ -182,13 +201,14 @@ function removeProcessing() {
 function removeCalculating() {
     $("#calculating").hide();
 }
-///////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////
-// functions for debugging
 
+///////////////////////////////////////////////////////////
+// fuction : calcHikageRitsu
+// param :
+// return :
+// note : 現在地から目的地までの日陰率を算出
+//        HTMLのid=place から目的地を取得
+///////////////////////////////////////////////////////////
 function calcHikageRitsu() {
     dispCalculating();
 
@@ -222,7 +242,43 @@ function calcHikageRitsu() {
     gMap.getCurrentLocation( cbGetCurrentLocate ); // 現在地取得
 }
 
+///////////////////////////////////////////////////////////
+// fuction : postHikagePoint
+// param :
+// return :
+// note : 日陰ポイントをPostする
+///////////////////////////////////////////////////////////
+function postHikagePoint() {
+// 現在地取得時のコールバック
+    var cbGetCurrentLocate = function(lat,lng) {
+        gMap.setCenter(lat,lng);
+        gMap.addMarker( 0, lat, lng, "", "", "", "", "6DF79C", null);
 
+        $.ajax({
+            type: "POST",
+            url: "assets/php/kuchikomi_post.php",
+            data: {
+                "lat" : lat,
+                "lng" : lng
+            },
+            success: function(res) {
+                console.log(res);
+            },
+            error: function(XMLHttpRequest, textStatus, errorThrown) {
+                alert('Error : ' + errorThrown);
+            }
+        });
+    }
+    gMap.getCurrentLocation( cbGetCurrentLocate ); // 現在地取得
+}
+
+
+///////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////
+// functions for debugging
 function logWrite(text) {
     console.log(text);
 /**/log.appendChild( document.createTextNode(text));

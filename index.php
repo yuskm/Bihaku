@@ -134,7 +134,7 @@
             <input type="button" value="GO!" onclick="calcHikageRitsu()">
             <br />
             <div id="social-icon" style="display:inline-block;">
-                <a href="#" class="btn04"><i class="fa fa-envira" aria-hidden="true"></i></a>
+            <a href="#" class="btn04" onclick="postHikagePoint()"><i class="fa fa-envira" aria-hidden="true"></i></a>
             </div>
             <div id="processing">Now Processing...</div>
             <div id="calculating">Now Calculating...</div>
@@ -169,6 +169,7 @@
 <script type="text/javascript" src="https://maps-api-ssl.google.com/maps/api/js?key=AIzaSyA3EFRj6lO1m-gWC0wkRFGnGFOmpTRO9TY&libraries=geometry&libraries=places&libraries=visualization"> </script>
 <script type="text/javascript" src="https://code.jquery.com/jquery-3.0.0.min.js"></script>
 <script type="text/javascript" src="assets/js/shizumichi.js"></script>
+<script type="text/javascript" src="assets/js/json.js"></script>
 <script type="text/javascript" src="assets/js/map.js"></script>
 <script type="text/javascript" src="assets/js/heimenzahyou.js"></script>
 <script type="text/javascript" src="assets/js/app.js"></script>

@@ -170,9 +170,10 @@ mapCtrl.prototype.addMarker = function(id, lat, lng, name, address, url, iconStr
         content: contentString
     } );
 
+/*
     this.bounds.extend(　pos );
     this.map.fitBounds( this.bounds );
-
+*/
     var mapCtrlObj = this; // obj for callback
     google.maps.event.addListener(marker, 'click', function() {
         if ( mapCtrlObj.infoWnd ) {
