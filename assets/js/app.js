@@ -258,8 +258,8 @@ function postHikagePoint() {
             type: "POST",
             url: "assets/php/kuchikomi_post.php",
             data: {
-                "lat" : lat,
-                "lng" : lng
+                "lat" : 34.973659,
+                "lng" : 138.377177
             },
             success: function(res) {
                 console.log(res);
