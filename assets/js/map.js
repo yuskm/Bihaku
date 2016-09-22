@@ -170,10 +170,11 @@ mapCtrl.prototype.addMarker = function(id, lat, lng, name, address, url, iconStr
         content: contentString
     } );
 
-/*
+/**
+本来は、描画領域を変えるべきだが、美白アプリでは一時的に領域変更しないようにしている
     this.bounds.extend(　pos );
     this.map.fitBounds( this.bounds );
-*/
+**/
     var mapCtrlObj = this; // obj for callback
     google.maps.event.addListener(marker, 'click', function() {
         if ( mapCtrlObj.infoWnd ) {
