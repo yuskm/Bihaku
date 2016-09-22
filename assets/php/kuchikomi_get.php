@@ -4,6 +4,7 @@
     // PostgreSQL Connect
     $url = parse_url(getenv('DATABASE_URL'));
 
+    var_dump($url);
 
     $dbconn = pg_connect("host=" . $url['host'] . "user=" . $url['user'] . "password=" . $url['pass'] . "dbname=" . substr($url['path'], 1));
     // SQL
