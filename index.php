@@ -16,7 +16,7 @@
 
     <link href="assets/css/app.css" rel="stylesheet" type="text/css" media="all" />
 
-    <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
 
 </head>
 <body class="is-loading-0 is-loading-1 is-loading-2 fullscreen">

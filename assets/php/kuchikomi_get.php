@@ -6,6 +6,7 @@
 
     var_dump($url);
 
+/*
     $dbconn = pg_connect("host=" . $url['host'] . "user=" . $url['user'] . "password=" . $url['pass'] . "dbname=" . substr($url['path'], 1));
     // SQL
     $sql = "SELECT * FROM bihakunavi;";
@@ -23,4 +24,6 @@
 
     header( 'Content-Type: application/json; charset=utf-8' );
     echo json_encode( $data );
+*/
+    echo ($url);
 ?>
