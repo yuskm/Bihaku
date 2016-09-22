@@ -25,5 +25,8 @@
 //    header( 'Content-Type: application/json; charset=utf-8' );
 //    echo json_encode( $data );
 
-    echo ($url . $dbconn . $data);
+    echo ($url);
+    var_dump($url);
+    var_dump($dbconn);
+    var_dump($str);
 ?>
