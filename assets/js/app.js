@@ -37,15 +37,19 @@ var log = document.getElementById( 'log' ); // log表示
     // 植栽データ取得時のコールバック
     var cbGetShokusai = function() {
         if ( gShizuMichi.staus.shokusaiOK == 1) {
-            gMap.showHeatmap( gShizuMichi.shokusaiLocate );
-
-            removeProcessing();
+/***
+// ymiyma 20160925 植栽データ取得は起動時に静的なjsonファイルで全領域分を取得し、ヒートマップレイヤーを作成するように修正した
+//            gMap.showHeatmap( gShizuMichi.shokusaiLocate );
+//            removeProcessing();
+***/
         }
     }
 
     // 描画領域変更時のコールバック
     // 描画領域変更されたら、領域内の植栽データ取得
     var cbBoundsChange = function() {
+/***
+// ymiyma 20160925 植栽データ取得は起動時に静的なjsonファイルで全領域分を取得し、ヒートマップレイヤーを作成するように修正した
         dispProcessing();
         if ( timer4Redraw == 0 ) {
             var timerId = setInterval( function() {
@@ -59,12 +63,14 @@ var log = document.getElementById( 'log' ); // log表示
             }, 500);
         }
         doGetShokusai = 1;
+***/
     }
 
     gMap.getCurrentLocation(cbGetCurrentLocate); // 現在地取得
     gMap.setGMapEventListener("bounds_changed", cbBoundsChange); // 描画領域変更時のコールバック設定
 
-        $.ajax({
+    // 口コミ情報をDB(postgresから取得)
+    $.ajax({
         type: "GET",
         url: "assets/php/kuchikomi_get.php",
         success: function(res) {
@@ -74,12 +80,12 @@ var log = document.getElementById( 'log' ); // log表示
         }
     });
 
-
-/*
-    var cbReadIchijihinanChiJson = function(res) {
+// ymiyma 20160925 植栽データ取得は起動時に静的なjsonファイルで全領域分を取得し、ヒートマップレイヤーを作成するように修正した
+    var cbShokusaiJsonRead = function(res) {
+        gMap.showHeatmap( res );
+        removeProcessing();
     }
-    gJson.readJsonFile("assets/json/ichijihinanchi.json",cbReadIchijihinanChiJson);
-*/
+    gJson.readJsonFile("assets/json/shokusai.json",cbShokusaiJsonRead);
 }());
 
 
@@ -215,17 +221,19 @@ function calcHikageRitsu() {
     var cbGetShokusai = function() {
         if ( gShizuMichi.staus.shokusaiOK ) {
             treeCount();        // 日陰率を算出する
-            gMap.showHeatmap( gShizuMichi.shokusaiLocate );
+/***
+// ymiyma 20160925 植栽データ取得は起動時に静的なjsonファイルで全領域分を取得し、ヒートマップレイヤーを作成するように修正した
+//            gMap.showHeatmap( gShizuMichi.shokusaiLocate );
+***/
             removeCalculating();
         }
     };
 
     // ルート探索完了時のコールバック
     var cbGetCalcRoute = function() {
-    //    gShizuMichi.getShokusaiData( gMap.curRegion.latNE, gMap.curRegion.lngNE, gMap.curRegion.latSW, gMap.curRegion.lngSW, 100, 1, null, cbGetShokusai );
+        gShizuMichi.getShokusaiData( gMap.curRegion.latNE, gMap.curRegion.lngNE, gMap.curRegion.latSW, gMap.curRegion.lngSW, 100, 1, null, cbGetShokusai );
         var timerId = setInterval( function() {
             if ( gShizuMichi.staus.shokusaiOK == 1 ) {
-                cbGetShokusai();
                 clearInterval(timerId);
             }
         }, 1000 );

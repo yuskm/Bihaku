@@ -30,6 +30,9 @@ jsonCtrl.prototype.readJsonFile = function(filepath, callback) {
         dataType: "json",
         success: function(res) {
             callback(res);
+        },
+        error: function(xhr, textStatus, errorThrown) {
+            callback(res);
         }
     });
 };

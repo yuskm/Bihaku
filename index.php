@@ -151,13 +151,11 @@
             <div id="map" class="image"></div>
             <div id="guide"></div>
             <div id="log"></div>
-
-
         </div>
-
-
     </div>
 </div>
+
+
 
 <!-- Scripts -->
 <script src="assets/thema/js/jquery.min.js"></script>

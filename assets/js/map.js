@@ -29,12 +29,14 @@ function mapCtrl(mapElement, guideElement) {
 
     // ヒートマップ オブジェクト
     this.heatmap = new google.maps.visualization.HeatmapLayer({
-        radius : 8, //ヒートマップの各ポイントの大きさ
+        radius : 10, //ヒートマップの各ポイントの大きさ
+        opacity: 1.0, // 透明度
+        maxIntensity: 10, // 強度最大値
 /**/    // 植栽データ表示用のカラー設定
         gradient:[
                 'rgba(0, 255, 0, 0)',
-                'rgba(0, 255, 0, 1)',
-                'rgba(0, 191, 0, 1)',
+                'rgba(0, 210, 0, 1)',
+                'rgba(0, 190, 0, 1)',
                 'rgba(0, 127, 0, 1)',
                 'rgba(0, 63, 0, 1)',
                 'rgba(0, 0, 0, 1)',
@@ -80,8 +82,6 @@ mapCtrl.prototype.getCurrentLocation = function(callback) {
         navigator.geolocation.getCurrentPosition ( funcGetCurPos );
     }
 	function funcGetCurPos( position ) {
-//        var lat = 34.971470;
-//        var lng = 138.389172;
         var lat = position.coords.latitude;
         var lng = position.coords.longitude;
 		callback( lat, lng );
@@ -324,7 +324,7 @@ mapCtrl.prototype.calcRoutebyName = function( destStr, callback ) {
 
     // 探索開始
     var mapCtrlObj = this; // obj for callback
-    this.routeInfo =[];
+    this.routeInfo = [];
 
     if ( this.polyLine ) {
         for ( var i = 0; i < this.polyLine.length; i++) {
@@ -332,6 +332,8 @@ mapCtrl.prototype.calcRoutebyName = function( destStr, callback ) {
             this.polyLine[i] =[];
         }
     }
+    this.polyLine = [];
+
 	this.directionsService.route( request, function( result, status ) {
 		if ( status == google.maps.DirectionsStatus.OK ) {
             var routeInfo = [];  // ルート表示用データ格納変数
@@ -426,18 +428,17 @@ mapCtrl.prototype.findLandmark = function(lat, lng, type, rad, idOfst ) {
 // return :
 // note : ヒートマップを表示する
 ///////////////////////////////////////////////////////////
-mapCtrl.prototype.showHeatmap = function(pointData) {
+mapCtrl.prototype.showHeatmap = function(dataPoint) {
     //ヒートマップ用のデータの作成
 //    var bounds = new google.maps.LatLngBounds();
     var  latlng, point = [];
-    for ( var i = 0; i < pointData.length; i++ ) {
-        latlng = new google.maps.LatLng( pointData[i].coordinate[1], pointData[i].coordinate[0] );
+    for ( var i = 0; i < dataPoint.length; i++ ) {
+        latlng = new google.maps.LatLng( dataPoint[i].lat, dataPoint[i].lng );
         point.push({
-            location : latlng,
-            opacity : 0.1,
-            weight : 1
+            location:latlng,
+            weight:1
         });
-//        bounds.extend(latlng);
+//      bounds.extend(latlng);
     }
 //    this.map.fitBounds(bounds);       //全てのデータが画面に収まる様に表示を変更
 

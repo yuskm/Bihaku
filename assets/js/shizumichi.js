@@ -45,14 +45,15 @@ shizuMichiCtrl.prototype.getShokusaiData = function(northlat, westlng, sounthlat
     if (!page) { page = 1 }
 
     // AjaxでしずみちAPIにアクセス
-    var url = "https://openapi.city.shizuoka.jp/opendataapi/servicepoint/Shokusai_Pnt?extent="+ northlat +"," + westlng + "," + sounthlat + "," + eastlng + "&page=" + page + "&row=" + row;
+     var url = "https://openapi.city.shizuoka.jp/opendataapi/servicepoint/Shokusai_Pnt?extent="+ northlat +"," + westlng + "," + sounthlat + "," + eastlng + "&page=" + page + "&row=" + row;
+
     $.ajax({
         type: "GET",
         url: url,
         dataType: "json",
         success: function(res) {
             for ( var i = 0;(i < res.PageRecord) && ( i + (page - 1) * row < res.TotalRecord); i++ ) {
-                shizuMichiCtrlObj.shokusaiLocate[ i + (page-1) * row ] = { id:res.Data.features[i].id, coordinate:res.Data.features[i].geometry.coordinates };
+                shizuMichiCtrlObj.shokusaiLocate[ i + (page-1) * row ] = { id:res.Data.features[i].properties.ogr_fid, coordinate:res.Data.features[i].geometry.coordinates };
             }
 
             if ( page < res.TotalPage ) {
