@@ -9,6 +9,7 @@ Author : ymiya
 var gShizuMichi = new shizuMichiCtrl();     // しずみちAPI制御
 var gMap        = new mapCtrl( document.getElementById('map'), document.getElementById('guide') );  // google MAP API制御
 var gJson       = new jsonCtrl();
+var gResas      = new resasCtrl();
 ///////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////
@@ -86,6 +87,36 @@ var log = document.getElementById( 'log' ); // log表示
         removeProcessing();
     }
     gJson.readJsonFile("assets/json/shokusai.json",cbShokusaiJsonRead);
+
+// ymiyama 20170201 RESASデータから観光資源を取得。
+
+    var deferred = gResas.getKankochi();
+    //　完了の通知がきたら、RESASから取得した観光地情報にピンを立てる。
+    deferred.done(function(){
+//        for ( var i = 0; i < gResas.kanokoChi.length; i++ ) {
+//            gMap.addMarker( 0x1000 + 1, res[i].lat, res[i].lng, "", "", "", "", "E82E11", null);
+//        }
+
+        var kankoChiTable = document.getElementById("kankoChiTable");
+        kankoChiTable.style.textAlign ="right";
+
+        for (var i = 0; i < kankoChiTable.rows.length; i++ ) {
+            kankoChiTable.deleteRow( 0 );
+        }
+
+        for ( var i = 0; i < gResas.kanokoChi.length; i++ ) {
+            var row  = kankoChiTable.insertRow( i );
+        	var cell = row.insertCell( 0 );
+            cell.style.color = "black";
+            cell.appendChild( document.createTextNode( gResas.kanokoChi[i].name ) );
+            cell = row.insertCell( 1 );
+            var eButton = document.createElement('button');
+            eButton.innerHTML = 'GO!';
+            eButton.setAttribute('type', "button");
+            eButton.setAttribute('onclick', "gMap.setCenter(" + gResas.kanokoChi[i].lat + "," + gResas.kanokoChi[i].lng + ");");
+            cell.appendChild( eButton );
+        }
+    });
 }());
 
 
@@ -280,7 +311,27 @@ function postHikagePoint() {
     gMap.getCurrentLocation( cbGetCurrentLocate ); // 現在地取得
 }
 
-
+///////////////////////////////////////////////////////////
+// fuction : escape_html
+// param :
+// return :
+// note : escape文字変換
+///////////////////////////////////////////////////////////
+function escape_html (string) {
+  if(typeof string !== 'string') {
+    return string;
+  }
+  return string.replace(/[&'`"<>]/g, function(match) {
+    return {
+      '&': '%26',
+      "'": '%27',
+      '`': '%60',
+      '"': '%22',
+      '<': '%3C',
+      '>': '%3E',
+    }[match]
+  });
+}
 ///////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////

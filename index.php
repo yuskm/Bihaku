@@ -108,11 +108,16 @@
         </article>
     </section>
 
-    <br>
-    <center><b>おすすめ日陰</b></center>
-    <div id="comentWrapper">
+    <br><br><br>
+    <right><b>静岡市の観光ポイント</b></right>
+<!--    <div id="comentWrapper">
         mizuki1437：とてもよいポイントです！<br>
-        mizuki1437：とてもよいポイントです！<br><br><br><br><br>
+        </div>
+-->
+    <br><br>
+    <div id="kankoChi">
+        <table id = "kankoChiTable" align="right">
+        </table>
     </div>
 
     <!-- Footer -->
@@ -170,6 +175,7 @@
 <script type="text/javascript" src="assets/js/json.js"></script>
 <script type="text/javascript" src="assets/js/map.js"></script>
 <script type="text/javascript" src="assets/js/heimenzahyou.js"></script>
+<script type="text/javascript" src="assets/js/resas.js"></script>
 <script type="text/javascript" src="assets/js/app.js"></script>
 
 </body>
