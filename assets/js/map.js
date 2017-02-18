@@ -82,8 +82,12 @@ mapCtrl.prototype.getCurrentLocation = function(callback) {
         navigator.geolocation.getCurrentPosition ( funcGetCurPos );
     }
 	function funcGetCurPos( position ) {
-        var lat = position.coords.latitude;
-        var lng = position.coords.longitude;
+//        var lat = position.coords.latitude;
+//        var lng = position.coords.longitude;
+
+        var lat = 34.975783;
+        var lng = 138.387355;
+
 		callback( lat, lng );
         mapCtrlObj.curlatlng = new google.maps.LatLng( lat, lng );
     }

@@ -108,13 +108,17 @@
         </article>
     </section>
 
-    <br><br><br>
-    <right><b>静岡市の観光ポイント</b></right>
-<!--    <div id="comentWrapper">
-        mizuki1437：とてもよいポイントです！<br>
-        </div>
--->
     <br><br>
+
+    <right><b>＜まちぽイベント情報＞</b></right>
+    <br>
+    <div id="machipo">
+        <table id = "machipoTable" align="right" style="margin-bottom:20px">
+        </table>
+    </div>
+    <BR><BR>
+    <right><b>＜静岡市の観光ポイント(by RESAS)＞</b></right>
+    <br>
     <div id="kankoChi">
         <table id = "kankoChiTable" align="right">
         </table>
@@ -176,6 +180,7 @@
 <script type="text/javascript" src="assets/js/map.js"></script>
 <script type="text/javascript" src="assets/js/heimenzahyou.js"></script>
 <script type="text/javascript" src="assets/js/resas.js"></script>
+<script type="text/javascript" src="assets/js/rest.js"></script>
 <script type="text/javascript" src="assets/js/app.js"></script>
 
 </body>

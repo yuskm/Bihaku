@@ -10,6 +10,7 @@ var gShizuMichi = new shizuMichiCtrl();     // しずみちAPI制御
 var gMap        = new mapCtrl( document.getElementById('map'), document.getElementById('guide') );  // google MAP API制御
 var gJson       = new jsonCtrl();
 var gResas      = new resasCtrl();
+var gRest       = new restCtrl();
 ///////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////
@@ -17,6 +18,16 @@ var gResas      = new resasCtrl();
 var timer4Redraw  = 0;    // 描画領域変更後、一定時間経過した時のみ植栽データを取得する
 var doGetShokusai = 0;    // 一定時間描画領域が変更されなければ、最新の描画領域を元に植栽データ取得
 var log = document.getElementById( 'log' ); // log表示
+///////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////
+// 20170218 resas コンテスト用
+var machipo=[];
+
+var clickEvent = function(i) {
+    gMap.setCenter( machipo[i].lat, machipo[i].lng );
+    gMap.addMarker( 0x1000, machipo[i].lat, machipo[i].lng, machipo[i].title, machipo[i].comment, machipo[i].url, "", "E82E11", null);
+};
 ///////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////
@@ -29,10 +40,62 @@ var log = document.getElementById( 'log' ); // log表示
 // input : gMap.curRegion : google Map の表示領域
 ///////////////////////////////////////////////////////////
 ( function() {
+/////////////////////////////////////////////////////////////////
+// resas コンテスト用処理
+// ymiyama 20170201 まちぽ から イベント情報を取得する
+    var GetMachipoInfo = function(lat, lng) {
+        var lat = 34.975783;
+        var lng = 138.387355;
+
+        var machipoTable = document.getElementById("machipoTable");
+        machipoTable.style.textAlign ="right";
+
+        for (var i = 0; i < machipoTable.rows.length; i++ ) {
+            machipoTable.deleteRow( i );
+        }
+
+        var cbMachipo = function(res) {
+            for ( var i = 0; i < res.events.length; i++ ) {
+                if ( ( res.events[i].categories.indexOf(3) >= 0 ) ||
+                     ( res.events[i].categories.indexOf(5) >= 0 ) ||
+                     ( res.events[i].categories.indexOf(7) >= 0 ) ||
+                     ( res.events[i].categories.indexOf(8) >= 0 ) ||
+                     ( res.events[i].categories.indexOf(10) >= 0 )
+                ) {
+                    machipo[machipo.length] = { title : res.events[i].title,
+                                   comment : res.events[i].content,
+                                   url : res.events[i].event_url,
+                                   start : res.events[i].start_at,
+                                   end : res.events[i].end_at,
+                                   lat : res.events[i].location.lat,
+                                   lng : res.events[i].location.lng,
+                                   location : res.events[i].location.name };
+                }
+            }
+            console.log(machipo);
+
+            for ( var i = 0; i < machipo.length; i++ ) {
+                var row  = machipoTable.insertRow( i );
+                var cell = row.insertCell( 0 );
+                cell.style.color = "black";
+                cell.appendChild( document.createTextNode( machipo[i].title ) );
+                cell = row.insertCell( 1 );
+                var eButton = document.createElement('button');
+                eButton.innerHTML = 'GO!';
+                eButton.setAttribute('type', "button");
+                eButton.setAttribute('onclick', "clickEvent(" + i + ");" );
+                cell.appendChild( eButton );
+            }
+        };
+        gRest.getData("ajax.php?url=https://machipo.jp/api/v2/event/search.json?date=active&lat="+lat+"&lng="+lng+"&radus=3","json", cbMachipo);
+    };
+// resas コンテスト用処理
+/////////////////////////////////////////////////////////////////
 
     // 現在地取得時のコールバック
     var cbGetCurrentLocate = function(lat,lng) {
         gMap.setCenter(lat,lng);
+        GetMachipoInfo(lat,lng);
     }
 
     // 植栽データ取得時のコールバック
@@ -88,20 +151,17 @@ var log = document.getElementById( 'log' ); // log表示
     }
     gJson.readJsonFile("assets/json/shokusai.json",cbShokusaiJsonRead);
 
+/////////////////////////////////////////////////////////////////
+// resas コンテスト用処理
 // ymiyama 20170201 RESASデータから観光資源を取得。
-
     var deferred = gResas.getKankochi();
-    //　完了の通知がきたら、RESASから取得した観光地情報にピンを立てる。
+    //　完了の通知がきたら、一覧表示
     deferred.done(function(){
-//        for ( var i = 0; i < gResas.kanokoChi.length; i++ ) {
-//            gMap.addMarker( 0x1000 + 1, res[i].lat, res[i].lng, "", "", "", "", "E82E11", null);
-//        }
-
         var kankoChiTable = document.getElementById("kankoChiTable");
         kankoChiTable.style.textAlign ="right";
 
         for (var i = 0; i < kankoChiTable.rows.length; i++ ) {
-            kankoChiTable.deleteRow( 0 );
+            kankoChiTable.deleteRow( i );
         }
 
         for ( var i = 0; i < gResas.kanokoChi.length; i++ ) {
@@ -117,6 +177,8 @@ var log = document.getElementById( 'log' ); // log表示
             cell.appendChild( eButton );
         }
     });
+// resas コンテスト用処理
+/////////////////////////////////////////////////////////////////
 }());
 
 
