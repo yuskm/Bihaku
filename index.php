@@ -103,13 +103,8 @@
         <article>
              <p class="thumbnail" id="modal-open3" >使い方</p>
         </article>
-        <article>
-            <a class="thumbnail" href="images/fulls/05.jpg" data-position="top center">クチコミ</a>
-        </article>
     </section>
-
-    <br><br>
-
+    <br>
     <right><b>＜まちぽイベント情報＞</b></right>
     <br>
     <div id="machipo">
