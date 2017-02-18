@@ -188,6 +188,13 @@ mapCtrl.prototype.addMarker = function(id, lat, lng, name, address, url, iconStr
         infowindow.open(　mapCtrlObj.map, marker　);
         mapCtrlObj.infoWnd = infowindow;
     });
+
+　   google.maps.event.addListener(this.map, "click", function(){
+        if ( mapCtrlObj.infoWnd ) {
+            // すでに開いている情報ウィンドウがあれば閉じる
+            mapCtrlObj.infoWnd.close();
+        }
+　   });
 }
 
 ///////////////////////////////////////////////////////////
